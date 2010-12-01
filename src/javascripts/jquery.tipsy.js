@@ -63,6 +63,17 @@
                 } else {
                     $tip.css({visibility: 'visible', opacity: this.options.opacity});
                 }
+                
+                $e = this.$element;
+                var removeTimer = function() {
+                    var leaveTimer = $e.data('leaveTimer');
+                    if (leaveTimer) clearTimeout(leaveTimer);
+                }
+                $tip.mouseenter(removeTimer);
+                $tip.mouseleave(function() {
+                    removeTimer();
+                    $e.trigger('hideTip');
+                });
             }
         },
         
@@ -152,7 +163,7 @@
             if (options.delayOut == 0) {
                 tipsy.hide();
             } else {
-                setTimeout(function() { if (tipsy.hoverState == 'out') tipsy.hide(); }, options.delayOut);
+                $.data(this, 'leaveTimer', setTimeout(function() { if (tipsy.hoverState == 'out') tipsy.hide(); }, options.delayOut));
             }
         };
         
@@ -162,7 +173,7 @@
             var binder   = options.live ? 'live' : 'bind',
                 eventIn  = options.trigger == 'hover' ? 'mouseenter' : 'focus',
                 eventOut = options.trigger == 'hover' ? 'mouseleave' : 'blur';
-            this[binder](eventIn, enter)[binder](eventOut, leave);
+            this[binder](eventIn, enter)[binder](eventOut, leave)[binder]('hideTip', leave);
         }
         
         return this;
